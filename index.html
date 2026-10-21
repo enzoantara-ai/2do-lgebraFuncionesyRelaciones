@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reto de Funciones y Relaciones · 2.º de secundaria</title>
+<style>
+:root{--ink:#1e2a4a;--blue:#2F6DB5;--red:#D64545;--green:#2E9E6B;--hl:#FFE45E;--paper:#fbfaf3;--grid:#d3e4f0}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:"Trebuchet MS","Segoe UI",Roboto,system-ui,sans-serif;font-size:18px;line-height:1.45;
+background-color:var(--paper);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;
+border-left:3px solid #f0a0a0;padding:20px 14px 40px}
+main{max-width:720px;margin:0 auto}
+.card{background:#fff;border:2.5px solid var(--ink);border-radius:14px;box-shadow:6px 6px 0 var(--ink);padding:24px 22px;margin-bottom:18px}
+h1{font-size:2rem;line-height:1.15;margin:0 0 8px}
+h1 mark{background:var(--hl);padding:0 .25em;border-radius:4px}
+p{margin:.4em 0 .9em}
+label{font-weight:700;display:block;margin-bottom:6px}
+input{width:100%;font:inherit;padding:10px 12px;border:2.5px solid var(--ink);border-radius:10px}
+button{font:inherit;cursor:pointer}
+.go{background:var(--blue);color:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:12px 26px;font-weight:700;box-shadow:4px 4px 0 var(--ink);margin-top:14px}
+.go:active{transform:translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+:focus-visible{outline:4px solid var(--hl);outline-offset:2px}
+.top{display:flex;justify-content:space-between;font-weight:700;margin-bottom:8px}
+.bar{height:12px;border:2px solid var(--ink);border-radius:8px;background:#fff;overflow:hidden;margin-bottom:18px}
+#prog{height:100%;width:0;background:var(--green);transition:width .3s}
+#q{font-size:1.25rem;font-weight:700;margin-bottom:16px}
+#opts{display:grid;gap:10px}
+#opts.g{grid-template-columns:1fr 1fr}
+.opt{text-align:left;background:#fff;border:2.5px solid var(--ink);border-radius:12px;padding:12px 14px}
+.opt:hover:not(:disabled){background:#eef5fd}
+.opt:disabled{cursor:default;color:var(--ink)}
+.opt.ok{background:#c9f0dc;border-color:var(--green)}
+.opt.bad{background:#fbd2d2;border-color:var(--red)}
+.opt svg{display:block;width:100%;max-width:150px;margin:0 auto}
+#fb{margin-top:16px;border-left:6px solid var(--blue);background:#f1f7fd;padding:10px 14px;border-radius:0 10px 10px 0}
+#fb.good{border-color:var(--green);background:#eafaf2}
+#fbt{font-weight:700}
+.big{font-size:3.2rem;font-weight:800;line-height:1}
+.cert{border:2.5px dashed var(--ink);border-radius:10px;padding:10px 14px;margin:14px 0;background:#fffbe0}
+[hidden]{display:none!important}
+@media(max-width:480px){body{font-size:16px}h1{font-size:1.6rem}#opts.g{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<section class="card" id="start">
+<h1>Reto de <mark>Funciones</mark> y Relaciones</h1>
+<p>10 preguntas de 2.º de secundaria. Tras cada respuesta verás por qué es correcta. Puedes jugar las veces que quieras: las preguntas y las alternativas cambian de orden cada vez.</p>
+<label for="name">Tu nombre (opcional)</label>
+<input id="name" maxlength="30" autocomplete="off" placeholder="Ej.: Ana Torres">
+<button class="go" onclick="start()">Empezar el reto</button>
+<p id="best" style="margin-top:16px"></p>
+</section>
+
+<section class="card" id="game" hidden>
+<div class="top"><span id="count"></span><span id="score"></span></div>
+<div class="bar"><div id="prog"></div></div>
+<div id="q"></div>
+<div id="opts"></div>
+<div id="fb" hidden aria-live="polite"><div id="fbt"></div><div id="fbx"></div><button class="go" id="next" onclick="next()">Siguiente</button></div>
+</section>
+
+<section class="card" id="end" hidden>
+<div class="big" id="final"></div>
+<h1 id="msg" style="margin-top:12px"></h1>
+<div class="cert" id="cert"></div>
+<p id="tip"></p>
+<button class="go" onclick="start()">Jugar otra vez</button>
+</section>
+</main>
+
+<script>
+const ax='<line x1="5" y1="50" x2="95" y2="50" stroke="#999" stroke-width="2"/><line x1="50" y1="5" x2="50" y2="95" stroke="#999" stroke-width="2"/>';
+const sv=p=>`<svg viewBox="0 0 100 100" role="img" aria-label="gráfica">${ax}${p}</svg>`;
+const st='fill="none" stroke="#2F6DB5" stroke-width="4"';
+const Q=[
+{q:'Si (x + 2 ; 9) = (7 ; y − 1), ¿cuánto vale x + y?',o:['5','12','15','10'],a:2,
+ e:'Dos pares son iguales si coinciden componente a componente: x + 2 = 7 → x = 5 y y − 1 = 9 → y = 10. Entonces x + y = 15.'},
+{q:'Si A = {1; 2; 3} y B = {a; b}, ¿cuántos pares tiene A × B?',o:['5','6','8','9'],a:1,
+ e:'n(A × B) = n(A) · n(B) = 3 · 2 = 6.'},
+{q:'Si A = {1; 2} y B = {3; 4}, ¿cuál de estos pares NO pertenece a A × B?',o:['(1; 3)','(2; 4)','(3; 1)','(1; 4)'],a:2,
+ e:'En A × B la primera componente sale de A y la segunda de B. En (3; 1) el 3 es de B, así que no pertenece (el orden importa).'},
+{q:'Si A = {1; 2; 3; 4} y R = {(x; y) ∈ A × A / y = x + 1}, ¿cuántos pares tiene R?',o:['2','3','4','5'],a:1,
+ e:'Los pares son (1; 2), (2; 3) y (3; 4). Con x = 4 saldría y = 5, que no está en A.'},
+{q:'Dada R = {(1; 5), (2; 7), (3; 5), (4; 9)}, ¿cuáles son su dominio y su rango?',
+ o:['Dom = {1; 2; 3; 4} y Ran = {5; 7; 9}','Dom = {5; 7; 9} y Ran = {1; 2; 3; 4}','Dom = {1; 2; 3; 4} y Ran = {5; 5; 7; 9}','Dom = {1; 2; 3; 4; 5; 7; 9} y Ran = {5; 7; 9}'],a:0,
+ e:'El dominio reúne las primeras componentes y el rango las segundas. Un elemento repetido (el 5) se escribe una sola vez.'},
+{q:'¿Cuál de estos conjuntos de pares SÍ es una función?',o:['{(1; 2), (1; 3), (2; 4)}','{(1; 2), (2; 2), (3; 2)}','{(2; 1), (2; 2), (2; 3)}','{(1; 1), (2; 3), (1; 4)}'],a:1,
+ e:'Una función no repite primeras componentes con segundas distintas. En {(1;2), (2;2), (3;2)} las primeras son 1, 2 y 3; que el 2 se repita como segunda componente no importa.'},
+{q:'Usa la regla de la recta vertical: ¿qué gráfica representa una función?',g:1,
+ o:[sv('<circle cx="50" cy="50" r="30" '+st+'/>'),sv('<path d="M25 12 Q98 50 25 88" '+st+'/>'),sv('<path d="M14 14 Q50 106 86 14" '+st+'/>'),sv('<line x1="68" y1="8" x2="68" y2="92" stroke="#2F6DB5" stroke-width="4"/>')],a:2,
+ e:'Es la parábola que abre hacia arriba: cualquier recta vertical la corta en un solo punto. En las otras, alguna recta vertical corta en dos puntos o en infinitos.'},
+{q:'F = {(1; 3), (2; 5), (1; a + 1)} es una función. ¿Cuánto vale a?',o:['1','2','3','4'],a:1,
+ e:'El 1 se repite como primera componente, así que las segundas deben ser iguales: a + 1 = 3 → a = 2.'},
+{q:'Sea f(x) = 2x + 1 si x < 3, y f(x) = x² − 4 si x ≥ 3. ¿Cuánto vale f(2) + f(4)?',o:['13','15','17','21'],a:2,
+ e:'Como 2 < 3, f(2) = 2·2 + 1 = 5. Como 4 ≥ 3, f(4) = 4² − 4 = 12. Suma: 5 + 12 = 17.'},
+{q:'Sofía dice: «{(1; 7), (2; 7), (3; 7)} no es función porque el 7 se repite». ¿Qué le respondes?',
+ o:['Tienes razón: en una función no se puede repetir nada.','Te equivocas: es función porque ninguna primera componente se repite.','Te equivocas: no es función porque tiene tres pares.','Tienes razón: el 7 aparece tres veces.'],a:1,
+ e:'Lo que no puede repetirse con resultados distintos es la primera componente (x). Varios x pueden tener la misma imagen: es una función constante.'}
+];
+const $=i=>document.getElementById(i);
+const shuffle=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+let order,i,score,locked,name='';
+const show=id=>['start','game','end'].forEach(s=>$(s).hidden=s!==id);
+function best(){try{return +localStorage.getItem('retoFunc')||0}catch(e){return 0}}
+function showBest(){const b=best();$('best').textContent=b?'Tu mejor puntaje en este equipo: '+b+' / 100':''}
+function start(){name=$('name').value.trim();order=shuffle(Q);i=0;score=0;show('game');render()}
+function render(){
+ const q=order[i];locked=false;
+ $('count').textContent='Pregunta '+(i+1)+' de '+order.length;$('score').textContent=score+' pts';
+ $('prog').style.width=(i/order.length*100)+'%';$('q').innerHTML=q.q;
+ $('opts').className=q.g?'g':'';$('opts').innerHTML='';
+ shuffle(q.o.map((t,k)=>({t,ok:k===q.a}))).forEach(o=>{
+  const b=document.createElement('button');b.className='opt';b.innerHTML=o.t;b.dataset.ok=o.ok;
+  b.onclick=()=>pick(b,o.ok);$('opts').appendChild(b)});
+ $('fb').hidden=true;window.scrollTo(0,0);
+}
+function pick(b,ok){
+ if(locked)return;locked=true;
+ document.querySelectorAll('.opt').forEach(x=>{x.disabled=true;if(x.dataset.ok==='true')x.classList.add('ok')});
+ if(ok)score+=10;else b.classList.add('bad');
+ $('score').textContent=score+' pts';
+ const q=order[i];
+ $('fb').className=ok?'good':'';$('fbt').textContent=ok?'¡Correcto! +10 puntos':'Casi. Mira por qué:';
+ $('fbx').textContent=q.e;$('next').textContent=i===order.length-1?'Ver mi resultado':'Siguiente';
+ $('fb').hidden=false;$('next').focus();
+}
+function next(){i++;if(i<order.length)render();else finish()}
+function finish(){
+ if(score>best()){try{localStorage.setItem('retoFunc',score)}catch(e){}}
+ $('prog').style.width='100%';
+ $('final').textContent=score+' / 100';
+ const m=score===100?['¡Crack de las funciones!','Respuestas perfectas. Ya puedes explicarle el tema a un compañero.']:
+  score>=70?['¡Muy bien!','Vas por buen camino. Repasa las explicaciones de lo que fallaste y vuelve a intentarlo.']:
+  score>=40?['Buen avance','Ya entiendes parte del tema. Revisa tu mapa conceptual y juega otra vez.']:
+  ['¡Sigue intentando!','Repasa la ficha y el mapa conceptual, y vuelve a jugar. Cada intento te enseña algo.'];
+ $('msg').textContent=m[0];$('tip').textContent=m[1];
+ $('cert').textContent=(name||'Estudiante')+' · '+score+' puntos · '+new Date().toLocaleDateString('es-PE');
+ show('end');
+}
+showBest();
+</script>
+</body>
+</html>
